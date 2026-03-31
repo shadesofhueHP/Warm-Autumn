@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warm Autumn</title>
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+margin:0;
+background:#f5f2f1;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:8px 16px 16px;
+}
+
+.header{
+text-align:center;
+margin-bottom:8px;
+}
+
+.logo{
+display:block;
+max-width:220px;
+margin:0 auto 6px;
+}
+
+.header h1{
+font-family:Georgia,serif;
+font-weight:500;
+margin:0;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:14px;
+}
+
+.section-title{
+grid-column:1/-1;
+font-size:12px;
+letter-spacing:.15em;
+color:#6d7280;
+margin-top:14px;
+}
+
+.tile{
+aspect-ratio:1;
+border-radius:20px;
+cursor:pointer;
+}
+
+.lightbox{
+position:fixed;
+inset:0;
+display:none;
+z-index:999;
+}
+
+.lightbox.show{
+display:block;
+}
+
+.lightbox-color{
+position:absolute;
+inset:0;
+}
+
+.close-btn{
+position:absolute;
+top:32px;
+right:32px;
+width:36px;
+height:36px;
+border-radius:50%;
+border:none;
+background:rgba(255,255,255,.22);
+color:white;
+font-size:22px;
+display:flex;
+align-items:center;
+justify-content:center;
+backdrop-filter:blur(6px);
+-webkit-backdrop-filter:blur(6px);
+cursor:pointer;
+}
+
+.controls{
+position:absolute;
+top:32px;
+right:84px;
+display:flex;
+gap:8px;
+}
+
+.btn{
+width:36px;
+height:36px;
+border-radius:50%;
+border:none;
+background:rgba(255,255,255,.22);
+color:white;
+font-size:16px;
+display:flex;
+align-items:center;
+justify-content:center;
+backdrop-filter:blur(6px);
+-webkit-backdrop-filter:blur(6px);
+cursor:pointer;
+}
+
+.swipe{
+position:absolute;
+bottom:18px;
+left:50%;
+transform:translateX(-50%);
+color:white;
+letter-spacing:.15em;
+font-size:12px;
+}
+
+@media (max-width:640px){
+.logo{max-width:180px;}
+.grid{gap:12px;}
+.tile{border-radius:18px;}
+
+.close-btn{
+top:28px;
+right:28px;
+}
+
+.controls{
+top:28px;
+right:76px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<img class="logo" src="logo.png" alt="Shades of Hue logo">
+<h1>Warm Autumn</h1>
+<div>Tap color • Swipe to browse</div>
+</div>
+
+<div id="grid" class="grid"></div>
+
+</div>
+
+<div id="lightbox" class="lightbox">
+<div id="lightboxColor" class="lightbox-color"></div>
+
+<button id="close" class="close-btn">×</button>
+
+<div class="controls">
+<button id="prev" class="btn">←</button>
+<button id="next" class="btn">→</button>
+</div>
+
+<div class="swipe">SWIPE</div>
+</div>
+
+<script>
+
+const groups = [
+
+{
+title:"WARM AUTUMN NEUTRALS",
+colors:[
+"#E9D8BA",
+"#D8BC97",
+"#C7A073",
+"#A56E2A",
+"#724311",
+"#2E1408"
+]
+},
+
+{
+title:"CAMEL + GOLDEN BROWN",
+colors:[
+"#C39B6B",
+"#B6812D",
+"#A46D12",
+"#8C5A12",
+"#6D430E",
+"#4E2F08"
+]
+},
+
+{
+title:"CREAM + HONEY",
+colors:[
+"#F2E6CF",
+"#E8D3A9",
+"#E1BF47",
+"#F0C13A",
+"#E2A114"
+]
+},
+
+{
+title:"MUSTARD + MARIGOLD",
+colors:[
+"#D7AF00",
+"#D19A1A",
+"#C98C12",
+"#E5BE4A",
+"#BCA04F"
+]
+},
+
+{
+title:"PEACH + SALMON",
+colors:[
+"#EDB191",
+"#E3A97A",
+"#F38A66",
+"#E37053",
+"#D48775",
+"#D8C0B8"
+]
+},
+
+{
+title:"PUMPKIN + COPPER",
+colors:[
+"#E27C33",
+"#D98A2F",
+"#C56E2B",
+"#C15A15",
+"#A94B00",
+"#9C4B30"
+]
+},
+
+{
+title:"RUST + CINNAMON",
+colors:[
+"#B94A18",
+"#AF451C",
+"#A03D12",
+"#8E421E",
+"#7B4B1B",
+"#6F3E14"
+]
+},
+
+{
+title:"TOMATO + FIRE",
+colors:[
+"#E12A09",
+"#E34A1E",
+"#D62A00",
+"#F2460B",
+"#E45C33"
+]
+},
+
+{
+title:"BRICK + CRIMSON",
+colors:[
+"#BF1200",
+"#C10015",
+"#A8241E",
+"#9C140F",
+"#832E25",
+"#7B0E08"
+]
+},
+
+{
+title:"AUBERGINE + MULBERRY",
+colors:[
+"#6A2F56",
+"#742A52",
+"#7B2257",
+"#863792",
+"#A115C7"
+]
+},
+
+{
+title:"OLIVE + MOSS",
+colors:[
+"#D7D8A2",
+"#B8B562",
+"#818C1C",
+"#687938",
+"#6B6D2F",
+"#545100"
+]
+},
+
+{
+title:"ARMY + FOREST",
+colors:[
+"#84866B",
+"#667A4A",
+"#50672A",
+"#365F3E",
+"#2B4427",
+"#1C330F"
+]
+},
+
+{
+title:"TEAL + AEGEAN",
+colors:[
+"#18B6B6",
+"#0F8B8D",
+"#4B8781",
+"#2B6F68",
+"#24595A",
+"#1C4E56"
+]
+},
+
+{
+title:"DEEP WARM ACCENTS",
+colors:[
+"#6883B5",
+"#8B62AE",
+"#D7890F"
+]
+}
+
+];
+
+const grid=document.getElementById("grid");
+const lightbox=document.getElementById("lightbox");
+const lightboxColor=document.getElementById("lightboxColor");
+
+let all=[];
+let index=0;
+let startX=0;
+
+groups.forEach(group=>{
+
+const title=document.createElement("div");
+title.className="section-title";
+title.textContent=group.title;
+grid.appendChild(title);
+
+group.colors.forEach(color=>{
+
+all.push(color);
+
+const tile=document.createElement("div");
+tile.className="tile";
+tile.style.background=color;
+
+tile.onclick=()=>{
+index=all.indexOf(color);
+open();
+};
+
+grid.appendChild(tile);
+
+});
+
+});
+
+function open(){
+lightbox.classList.add("show");
+render();
+}
+
+function render(){
+lightboxColor.style.background=all[index];
+}
+
+function next(){
+index=(index+1)%all.length;
+render();
+}
+
+function prev(){
+index=(index-1+all.length)%all.length;
+render();
+}
+
+document.getElementById("close").onclick=()=>lightbox.classList.remove("show");
+document.getElementById("next").onclick=next;
+document.getElementById("prev").onclick=prev;
+
+lightbox.addEventListener("touchstart",e=>{
+startX=e.touches[0].clientX;
+});
+
+lightbox.addEventListener("touchend",e=>{
+let diff=e.changedTouches[0].clientX-startX;
+if(Math.abs(diff)<40)return;
+diff<0?next():prev();
+});
+
+</script>
+
+</body>
+</html>
